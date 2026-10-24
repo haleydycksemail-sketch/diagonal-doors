@@ -35,13 +35,15 @@ class DoorGeometryTest {
                 }
             }
     }
-    @Test void pairedLeavesHaveOpposingOuterHingesAndAlignedClosedTips() {
-        var first = DoorGeometry.panel(0, false, false);
-        var second = DoorGeometry.panel(0, true, false);
-        // Mate is one block east and one block north, with its hinge at the far end.
-        assertTrue(second.hinge().x()+16 > first.tip().x());
-        assertTrue(second.hinge().z()-16 < first.tip().z());
-        assertEquals(first.tip().x()-first.tip().z(),
-                second.tip().x()+16-(second.tip().z()-16)-4*DoorGeometry.INSET, 1e-9);
+    @Test void pairedLeavesMeetExactlyAtTheirFreeEdges() {
+        int dx=16,dz=-16;
+        for (int facing=0;facing<4;facing++) {
+            var first=DoorGeometry.panel(facing,false,false);
+            var second=DoorGeometry.panel(facing,true,false);
+            assertEquals(first.tip().x(),second.tip().x()+dx,1e-9);
+            assertEquals(first.tip().z(),second.tip().z()+dz,1e-9);
+            assertNotEquals(first.hinge(),first.tip());
+            int oldX=dx;dx=-dz;dz=oldX;
+        }
     }
 }

@@ -63,9 +63,10 @@ public final class AngledDoorBlock extends DoorBlock {
         // Two diagonally adjacent cells form a continuous doorway. The hinges belong at its outer ends.
         for (int sign : new int[]{1, -1}) {
             BlockState neighbor = context.getLevel().getBlockState(along(pos, facing, sign));
-            if (neighbor.is(this) && neighbor.getValue(HALF) == DoubleBlockHalf.LOWER
-                    && neighbor.getValue(FACING) == facing
-                    && neighbor.getValue(HINGE) == (sign == 1 ? DoorHingeSide.RIGHT : DoorHingeSide.LEFT)) {
+            BlockPos neighborPos=along(pos,facing,sign);
+            BlockPos existingMate=aligned(state,neighbor) ? mate(context.getLevel(),neighborPos,neighbor) : null;
+            if (aligned(state,neighbor) && neighbor.getValue(HALF)==DoubleBlockHalf.LOWER
+                    && (existingMate==null || existingMate.equals(pos))) {
                 return state.setValue(HINGE, sign == 1 ? DoorHingeSide.LEFT : DoorHingeSide.RIGHT)
                         .setValue(OPEN, neighbor.getValue(OPEN) || state.getValue(POWERED))
                         .setValue(POWERED, neighbor.getValue(POWERED) || state.getValue(POWERED));
@@ -80,6 +81,15 @@ public final class AngledDoorBlock extends DoorBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
+        BlockPos otherPos=along(pos,state.getValue(FACING),right(state) ? -1 : 1);
+        BlockState other=level.getBlockState(otherPos);
+        if (aligned(state,other) && other.getValue(HALF)==DoubleBlockHalf.LOWER) {
+            BlockPos previousMate=mate(level,otherPos,other);
+            if (previousMate==null || previousMate.equals(pos)) {
+                DoorHingeSide outerHinge=along(otherPos,other.getValue(FACING),1).equals(pos) ? DoorHingeSide.LEFT : DoorHingeSide.RIGHT;
+                level.setBlock(otherPos,other.setValue(HINGE,outerHinge),Block.UPDATE_CLIENTS);
+            }
+        }
         neighborChanged(level.getBlockState(pos), level, pos, net.minecraft.world.level.block.Blocks.AIR, pos, false);
     }
     @Override
@@ -91,11 +101,14 @@ public final class AngledDoorBlock extends DoorBlock {
                     net.minecraft.world.level.block.Blocks.AIR, pos, false);
         }
     }
+    private boolean aligned(BlockState state, BlockState other) {
+        return other.is(this) && Math.floorMod(turns(state.getValue(FACING))-turns(other.getValue(FACING)),2)==0;
+    }
     private BlockPos mate(Level level, BlockPos lower, BlockState state) {
-        BlockPos candidate = along(lower, state.getValue(FACING), right(state) ? -1 : 1);
-        BlockState other = level.getBlockState(candidate);
-        return other.is(this) && other.getValue(HALF) == DoubleBlockHalf.LOWER
-                && other.getValue(FACING) == state.getValue(FACING) && right(other) != right(state) ? candidate : null;
+        BlockPos candidate=along(lower,state.getValue(FACING),right(state) ? -1 : 1);
+        BlockState other=level.getBlockState(candidate);
+        return aligned(state,other) && other.getValue(HALF)==DoubleBlockHalf.LOWER
+                && along(candidate,other.getValue(FACING),right(other) ? -1 : 1).equals(lower) ? candidate : null;
     }
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block source, BlockPos sourcePos, boolean moving) {
@@ -120,7 +133,7 @@ public final class AngledDoorBlock extends DoorBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         InteractionResult result = super.useWithoutItem(state, level, pos, player, hit);
-        if (!level.isClientSide && result.consumesAction()) {
+        if (result.consumesAction()) {
             BlockPos lower = state.getValue(HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos;
             BlockState current = level.getBlockState(lower);
             BlockPos matePos = mate(level, lower, current);

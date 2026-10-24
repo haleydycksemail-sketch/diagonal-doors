@@ -1,16 +1,27 @@
-# How to test Diagonal Doors 0.3.0-alpha
+# How to test Diagonal Doors 0.4.0-alpha
 
-You do not need to compile anything. Use the supplied **diagonaldoors-0.3.0-alpha.jar**.
+You do not need to compile anything. Use the supplied **diagonaldoors-0.4.0-alpha.jar**.
+
+## Quick retest after the 0.3.0 feedback
+
+1. Close Minecraft, remove `diagonaldoors-0.3.0-alpha.jar`, and install only `diagonaldoors-0.4.0-alpha.jar`.
+2. Reopen your existing disposable test world. You do not need to create another one.
+3. Break and replace the double doors so the new automatic hinge-pairing logic runs. For a pair, place matching wooden doors on diagonal neighbors, looking the same direction; the second placement should put both hinges at the outer ends. Try starting at either end.
+4. Open a door, then click near its hinge, center, and free/handle end to close it. Try both halves and both sides. You should no longer have to aim near the hinge.
+5. Close the pair and inspect the meeting edges and handles. There should be no central gap, and the handles should be mirrored toward the meeting edges.
+6. Look at the panels and windows: their main texture now stays at vanilla width, with extra length confined to narrow frame strips at the ends. Tell me whether that looks closer to what you intended.
+
+The rest of this guide remains available for a full retest.
 
 ## 1. Install the new build
 
 1. Close Minecraft completely.
 2. Open the folder for the Minecraft instance you actually play. Your launcher's **Open Folder** or **Open Instance Folder** button is usually the easiest way to find it.
 3. Confirm that instance uses **Minecraft 1.21.1** and **NeoForge 21.1.25**. This is not a Fabric or ordinary Forge mod.
-4. Open its `mods` folder. Remove any older **Diagonal Doors** JAR from that folder, including `diagonaldoors-0.2.0-alpha.jar`. Keep only one version of this mod.
-5. Copy **diagonaldoors-0.3.0-alpha.jar** into `mods`. Do not put the source ZIP or a `-sources.jar` into that folder.
+4. Open its `mods` folder. Remove any older **Diagonal Doors** JAR from that folder, including `diagonaldoors-0.3.0-alpha.jar`. Keep only one version of this mod.
+5. Copy **diagonaldoors-0.4.0-alpha.jar** into `mods`. Do not put the source ZIP or a `-sources.jar` into that folder.
 6. For a first test, leave Fuzs's mods out, or use a separate test instance. You will add them for the compatibility test below.
-7. Launch the instance. Check the Mods screen for **Diagonal Doors 0.3.0-alpha**.
+7. Launch the instance. Check the Mods screen for **Diagonal Doors 0.4.0-alpha**.
 
 If Minecraft crashes before the menu, stop here and send the instance's `logs/latest.log` and, if generated, the newest file in `crash-reports`. You do not need to change Java or Gradle to use the compiled mod.
 
@@ -57,7 +68,7 @@ You do not need to test all 11 woods immediately. Start with cherry and oak; if 
 
 ## 6. Build and test a diagonal double door
 
-Both leaves need to use the **same wood**, face the **same direction**, and occupy **diagonally adjacent ground blocks**. Ordinary side-by-side blocks will not make this diagonal pair.
+Both leaves need to use the **same wood** and occupy **diagonally adjacent ground blocks**. For the easiest setup, face the **same direction** for both placements; the new build also supports opposite facings on the same diagonal. Ordinary side-by-side blocks will not make this diagonal pair.
 
 For a reproducible layout in your new test world, enter these commands one at a time in chat:
 
@@ -71,8 +82,8 @@ For a reproducible layout in your new test world, enter these commands one at a 
 This creates a small platform, marks the two door positions, and faces you north. These commands replace blocks near those coordinates, so use them only in your disposable test world.
 
 1. Hold an ordinary Cherry Door and stay facing generally **north**.
-2. Hold Sneak and place the first door on the **gold block**, aiming near its **southwest corner**. This should choose the outer, left hinge. If needed, use F3 while targeting the door: it should say `facing: north` and `hinge: left`. Break and replace it near the opposite corner if the hinge is wrong.
-3. Still facing north, hold Sneak and place the second cherry door on the **diamond block**. It should automatically choose `hinge: right`.
+2. Hold Sneak and place the first door on the **gold block**. You do not need to select its hinge carefully.
+3. Still facing north, hold Sneak and place the second cherry door on the **diamond block**. The gold-block door should now have `hinge: left`, and the diamond-block door `hinge: right`. You can inspect these properties using F3 while aiming at each door. Placing the second door corrects the first hinge if necessary.
 4. Release Sneak. Right-click either door. **Expected:** both doors open together. Click the other one. **Expected:** both close together. Try upper and lower halves.
 5. Place a redstone block immediately beside either door. **Expected:** both open. Remove it. **Expected:** both close.
 6. Power both doors with separate redstone blocks, then remove only one supply. **Expected:** the pair stays open. Remove the other supply. **Expected:** both close.
@@ -103,7 +114,7 @@ If the pair fails, note the targeted block's `facing`, `hinge`, `open`, and `pow
 Send a short result like this:
 
 ```text
-Build: 0.3.0-alpha
+Build: 0.4.0-alpha
 Minecraft / NeoForge: 1.21.1 / 21.1.25
 Other mods: [names, or none]
 Normal placement: pass / problem

@@ -5,6 +5,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -16,8 +17,15 @@ public final class DoorPicking {
     public static HitResult extend(Entity entity, double reach, float partialTick, HitResult original) {
         Vec3 from = entity.getEyePosition(partialTick);
         Vec3 to = from.add(entity.getViewVector(partialTick).scale(reach));
+        return extend(entity, from, to, original);
+    }
+    public static HitResult pick(Entity entity, Vec3 from, Vec3 to) {
+        var original=entity.level().clip(new ClipContext(from,to,ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,entity));
+        return extend(entity,from,to,original);
+    }
+    private static HitResult extend(Entity entity, Vec3 from, Vec3 to, HitResult original) {
         HitResult[] nearest = {original};
-        double[] distance = {original.getType() == HitResult.Type.MISS ? reach * reach : from.distanceToSqr(original.getLocation())};
+        double[] distance = {original.getType() == HitResult.Type.MISS ? from.distanceToSqr(to) : from.distanceToSqr(original.getLocation())};
         Set<BlockPos> checked = new HashSet<>();
         BlockGetter.traverseBlocks(from, to, entity, (camera, cell) -> {
             for (BlockPos candidate : BlockPos.betweenClosed(cell.offset(-1,-1,-1),cell.offset(1,1,1))) {

@@ -1,16 +1,18 @@
 # Diagonal Doors
 
-A standalone NeoForge mod for **Minecraft 1.21.1**, built and tested against **NeoForge 21.1.25** and **Java 21**. Version **0.3.0-alpha** is an installable development build; hands-on world testing remains necessary before calling it a finished release.
+A standalone NeoForge mod for **Minecraft 1.21.1**, built and tested against **NeoForge 21.1.25** and **Java 21**. Version **0.4.0-alpha** is an installable development build; hands-on world testing remains necessary before calling it a finished release.
+
+**[Download the installable JAR](https://github.com/haleydycksemail-sketch/diagonal-doors/raw/refs/heads/main/releases/diagonaldoors-0.4.0-alpha.jar)**
 
 ## Install and use
 
-Put `diagonaldoors-0.3.0-alpha.jar` in your instance's `mods` directory. Install it on both the client and server for multiplayer. Use Minecraft 1.21.1 and NeoForge 21.1.25. No Fuzs mod is required.
+Put `diagonaldoors-0.4.0-alpha.jar` in your instance's `mods` directory. Install it on both the client and server for multiplayer. Use Minecraft 1.21.1 and NeoForge 21.1.25. No Fuzs mod is required.
 
 **Hold Sneak (Shift by default) while placing an ordinary vanilla wooden door to place its diagonal version.** Place without Sneak for a normal vanilla door. Release Sneak before opening or closing the placed door. The old one-item conversion recipes remain available; you can craft a diagonal door back into a vanilla door. The creative Building Blocks tab also contains all 11 variants: oak, spruce, birch, jungle, acacia, dark oak, mangrove, cherry, bamboo, crimson, and warped. Existing vanilla doors are not replaced automatically. Iron, copper, and modded wood types are outside this version's scope.
 
-A closed door spans its cell diagonally. The click location selects the hinge near the closest diagonal endpoint. Right-click either half to open or close it. Opening rotates the leaf 90 degrees around its stationary hinge and extends it into an adjacent cell, so leave room for the swing. Collision and selection follow that leaf; the selection fix also covers the portion outside its owning cell. Minecraft collision uses a continuous, conservative staircase of 64 cuboids, with less than 0.22 model-unit approximation error.
+A closed door spans its cell diagonally. The click location selects the hinge near the closest diagonal endpoint. Right-click either half to open or close it. Opening rotates the leaf 90 degrees around its stationary hinge and extends it into an adjacent cell, so leave room for the swing. Collision and selection follow that leaf; the selection fix also covers the portion outside its owning cell. The central 16-unit vanilla texture keeps its normal scale; narrow frame strips at the ends supply the extra diagonal length. The free edges of a pair meet at their shared corner. Minecraft collision uses a continuous, conservative staircase of 64 cuboids, with less than 0.22 model-unit approximation error.
 
-For double doors, use **the same wood and facing** in two diagonally adjacent cells along the closed leaves. The first door's hinge should be at the outer end; the next door chooses the opposite outer hinge automatically. For example, when both doors face north, a left-hinged door at `(x,y,z)` pairs with a right-hinged door at `(x+1,y,z-1)`. Click either door to operate both. Redstone at either half of either door controls the pair; it remains powered until both sides lose power. Cardinal side-by-side doors are not diagonal pairs.
+For double doors, use **the same wood** in two diagonally adjacent cells along the closed leaves. Face the same direction or opposite directions along the same diagonal. Placing the second door automatically sets both hinges to the outer ends, regardless of which end you placed first. Already-paired doors are not reassigned to a third leaf. For example, when both doors face north, a left-hinged door at `(x,y,z)` pairs with a right-hinged door at `(x+1,y,z-1)`. Click either door to operate both. Redstone at either half of either door controls the pair; it remains powered until both sides lose power. Cardinal side-by-side doors are not diagonal pairs.
 
 ## Build and test
 

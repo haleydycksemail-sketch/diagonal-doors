@@ -230,4 +230,117 @@ public final class DoorGameTests {
         h.succeed();
     }
 
+
+    private static net.minecraft.server.network.ServerGamePacketListenerImpl realListener(GameTestHelper h, net.minecraft.server.level.ServerPlayer player) {
+        return new net.minecraft.server.network.ServerGamePacketListenerImpl(h.getLevel().getServer(),
+                new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND),player,
+                net.minecraft.server.network.CommonListenerCookie.createInitial(player.getGameProfile(),false)) {
+            @Override public void send(net.minecraft.network.protocol.Packet<?> packet) {}
+        };
+    }
+    private static void sendClick(net.minecraft.server.network.ServerGamePacketListenerImpl listener, BlockHitResult hit) {
+        var buffer=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
+        try {
+            var packet=new net.minecraft.network.protocol.game.ServerboundUseItemOnPacket(InteractionHand.MAIN_HAND,hit,0);
+            net.minecraft.network.protocol.game.ServerboundUseItemOnPacket.STREAM_CODEC.encode(buffer,packet);
+            listener.handleUseItemOn(net.minecraft.network.protocol.game.ServerboundUseItemOnPacket.STREAM_CODEC.decode(buffer));
+        } finally { buffer.release(); }
+    }
+    @GameTest(template = "empty")
+    public static void serverAcceptsClosingClicksAlongExtendedLeaf(GameTestHelper h) {
+        var block=door("oak");
+        var player=FakePlayerFactory.getMinecraft(h.getLevel());
+        player.setShiftKeyDown(false);
+        player.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+        BlockPos p=new BlockPos(5,1,5),abs=h.absolutePos(p);
+        var savedConnection=player.connection;
+        var listener=realListener(h,player);
+        try {
+            for (Direction facing : Direction.Plane.HORIZONTAL) for (DoorHingeSide hinge : DoorHingeSide.values())
+                for (boolean upper : new boolean[]{false,true}) for (double t : new double[]{0.2,0.5,0.8,0.95}) {
+                    var opened=state(block,facing,hinge).setValue(DoorBlock.OPEN,true);
+                    put(h,p,opened);
+                    var panel=DoorGeometry.panel(AngledDoorBlock.turns(facing),hinge==DoorHingeSide.RIGHT,true);
+                    double x=abs.getX()+(panel.hinge().x()*(1-t)+panel.tip().x()*t)/16;
+                    double z=abs.getZ()+(panel.hinge().z()*(1-t)+panel.tip().z()*t)/16;
+                    double dx=panel.tip().x()-panel.hinge().x(),dz=panel.tip().z()-panel.hinge().z(),length=Math.hypot(dx,dz);
+                    var normal=new Vec3(-dz/length,0,dx/length);
+                    var center=new Vec3(x,abs.getY()+(upper ? 1.5 : 0.5),z);
+                    var from=center.add(normal.scale(1.5));
+                    player.setPos(from.x,from.y-player.getEyeHeight(),from.z);
+                    BlockPos target=upper ? abs.above() : abs;
+                    var hit=h.getLevel().getBlockState(target).getShape(h.getLevel(),target).clip(from,center.subtract(normal.scale(0.1)),target);
+                    h.assertTrue(hit!=null,"Click fixture missed leaf");
+                    sendClick(listener,hit);
+                    h.assertTrue(!h.getBlockState(p).getValue(DoorBlock.OPEN),"Server rejected closing click: "+facing+"/"+hinge+" t="+t+" upper="+upper);
+                }
+        } finally { player.connection=savedConnection; }
+        h.succeed();
+    }
+    @GameTest(template = "empty")
+    public static void extendedClickValidationRejectsOffLeafAndOccludedHits(GameTestHelper h) {
+        var block=door("oak");
+        var player=FakePlayerFactory.getMinecraft(h.getLevel());
+        player.setShiftKeyDown(false);
+        player.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+        player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+        BlockPos p=new BlockPos(5,1,5),abs=h.absolutePos(p);
+        var opened=state(block,Direction.NORTH,DoorHingeSide.LEFT).setValue(DoorBlock.OPEN,true);
+        put(h,p,opened);
+        var panel=DoorGeometry.panel(0,false,true);
+        double x=abs.getX()+(panel.hinge().x()*0.1+panel.tip().x()*0.9)/16;
+        double z=abs.getZ()+(panel.hinge().z()*0.1+panel.tip().z()*0.9)/16;
+        var center=new Vec3(x,abs.getY()+0.5,z);
+        var from=center.add(-1,0,1);
+        player.setPos(from.x,from.y-player.getEyeHeight(),from.z);
+        var hit=opened.getShape(h.getLevel(),abs).clip(from,center.add(0.1,0,-0.1),abs);
+        h.assertTrue(hit!=null && DoorInteraction.isExtendedLeafHit(player,hit),"Valid fixture rejected");
+        var fake=new BlockHitResult(new Vec3(abs.getX()+1.8,abs.getY()+0.5,abs.getZ()+1.8),Direction.UP,abs,false);
+        h.assertTrue(!DoorInteraction.isExtendedLeafHit(player,fake),"Off-leaf hit accepted");
+        BlockPos obstruction=BlockPos.containing(from.add(center).scale(0.5));
+        h.getLevel().setBlock(obstruction,Blocks.STONE.defaultBlockState(),3);
+        h.assertTrue(!DoorInteraction.isExtendedLeafHit(player,hit),"Occluded leaf accepted");
+        h.getLevel().setBlock(obstruction,Blocks.AIR.defaultBlockState(),3);
+        player.setPos(from.x+20,from.y-player.getEyeHeight(),from.z);
+        h.assertTrue(!DoorInteraction.isExtendedLeafHit(player,hit),"Out-of-reach leaf accepted");
+        h.succeed();
+    }
+    @GameTest(template = "empty")
+    public static void pairingCorrectsFirstHingeInBothOrdersAndOppositeFacings(GameTestHelper h) {
+        var player=FakePlayerFactory.getMinecraft(h.getLevel());
+        var block=door("cherry");
+        player.setShiftKeyDown(true);
+        player.getAbilities().instabuild=true;
+        BlockPos a=new BlockPos(5,1,5);
+        for (Direction facing : Direction.Plane.HORIZONTAL) for (boolean reverse : new boolean[]{false,true})
+            for (boolean opposite : new boolean[]{false,true}) {
+                int dx=1,dz=-1;
+                for (int i=0;i<AngledDoorBlock.turns(facing);i++) { int old=dx;dx=-dz;dz=old; }
+                BlockPos b=a.offset(dx,0,dz);
+                for (BlockPos clear : BlockPos.betweenClosed(a.offset(-1,0,-1),a.offset(1,1,1))) h.setBlock(clear,Blocks.AIR);
+                BlockPos first=reverse ? b : a,second=reverse ? a : b;
+                // Deliberately start with the wrong (inner) hinge. Placement must correct it.
+                put(h,first,state(block,facing,reverse ? DoorHingeSide.LEFT : DoorHingeSide.RIGHT));
+                Direction secondFacing=opposite ? facing.getOpposite() : facing;
+                player.setYRot(secondFacing.toYRot());
+                h.setBlock(second.below(),Blocks.STONE);
+                BlockPos absolute=h.absolutePos(second);
+                ItemStack stack=new ItemStack(Blocks.CHERRY_DOOR.asItem());
+                player.setItemInHand(InteractionHand.MAIN_HAND,stack);
+                var hit=new BlockHitResult(Vec3.atBottomCenterOf(absolute),Direction.UP,absolute.below(),false);
+                var context=new BlockPlaceContext(h.getLevel(),player,InteractionHand.MAIN_HAND,stack,hit);
+                h.assertTrue(((BlockItem)stack.getItem()).place(context).consumesAction(),"Pair placement failed");
+                player.setShiftKeyDown(false);player.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                var firstState=h.getBlockState(first);
+                h.assertTrue(firstState.getValue(DoorBlock.HINGE)==(reverse ? DoorHingeSide.RIGHT : DoorHingeSide.LEFT),"First hinge not corrected: facing="+facing+", reverse="+reverse+", opposite="+opposite+", first="+firstState+", second="+h.getBlockState(second));
+                block.useWithoutItem(firstState,h.getLevel(),h.absolutePos(first),player,hit);
+                h.assertTrue(h.getBlockState(first).getValue(DoorBlock.OPEN) && h.getBlockState(second).getValue(DoorBlock.OPEN),"Pair did not open together");
+                block.useWithoutItem(h.getBlockState(second),h.getLevel(),absolute,player,hit);
+                h.assertTrue(!h.getBlockState(first).getValue(DoorBlock.OPEN) && !h.getBlockState(second).getValue(DoorBlock.OPEN),"Pair did not close together");
+                player.setShiftKeyDown(true);
+            }
+        player.setShiftKeyDown(false);
+        h.succeed();
+    }
 }

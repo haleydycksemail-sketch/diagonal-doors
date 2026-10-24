@@ -33,8 +33,10 @@ public final class DoorGeometry {
     }
     private DoorGeometry() {}
     public static Panel panel(int clockwiseTurns, boolean right, boolean open) {
-        Point left = new Point(INSET, 16 - INSET), end = new Point(16 - INSET, INSET);
-        Point hinge = right ? end : left, tip = right ? left : end;
+        // Keep the hinge inset for swing clearance, but reach the shared corner at the free end.
+        // Adjacent opposite-hinged leaves now meet exactly instead of leaving a three-unit gap.
+        Point hinge = right ? new Point(16-INSET, INSET) : new Point(INSET, 16-INSET);
+        Point tip = right ? new Point(0,16) : new Point(16,0);
         if (open) {
             double dx = tip.x - hinge.x, dz = tip.z - hinge.z;
             tip = right ? new Point(hinge.x + dz, hinge.z - dx) : new Point(hinge.x - dz, hinge.z + dx);

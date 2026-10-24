@@ -3,7 +3,7 @@ loaderVersion="*"
 license="MIT"
 [[mods]]
 modId="diagonaldoors"
-version="0.3.0-alpha"
+version="0.4.0-alpha"
 displayName="Diagonal Doors"
 authors="Haley's Minecraft Project"
 description="Hinged 45-degree vanilla-wood doors for NeoForge 1.21.1."
