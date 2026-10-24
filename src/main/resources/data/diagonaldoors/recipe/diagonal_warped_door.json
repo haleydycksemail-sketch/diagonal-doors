@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "minecraft:warped_door"
+    }
+  ],
+  "result": {
+    "id": "diagonaldoors:diagonal_warped_door",
+    "count": 1
+  }
+}

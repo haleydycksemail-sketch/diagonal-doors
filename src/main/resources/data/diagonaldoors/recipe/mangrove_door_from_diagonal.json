@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "diagonaldoors:diagonal_mangrove_door"
+    }
+  ],
+  "result": {
+    "id": "minecraft:mangrove_door",
+    "count": 1
+  }
+}

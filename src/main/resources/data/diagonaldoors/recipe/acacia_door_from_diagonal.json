@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "diagonaldoors:diagonal_acacia_door"
+    }
+  ],
+  "result": {
+    "id": "minecraft:acacia_door",
+    "count": 1
+  }
+}

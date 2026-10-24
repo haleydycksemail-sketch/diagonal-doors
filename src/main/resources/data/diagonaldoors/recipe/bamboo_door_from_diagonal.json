@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "diagonaldoors:diagonal_bamboo_door"
+    }
+  ],
+  "result": {
+    "id": "minecraft:bamboo_door",
+    "count": 1
+  }
+}

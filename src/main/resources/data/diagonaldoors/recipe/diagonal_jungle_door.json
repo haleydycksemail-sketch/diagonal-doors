@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "minecraft:jungle_door"
+    }
+  ],
+  "result": {
+    "id": "diagonaldoors:diagonal_jungle_door",
+    "count": 1
+  }
+}

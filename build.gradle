@@ -1,0 +1,41 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+version = '0.3.0-alpha'
+group = 'com.haley.diagonaldoors'
+base { archivesName = 'diagonaldoors' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.withSourcesJar()
+neoForge {
+    version = '21.1.25'
+    runs {
+        client {
+            client()
+            systemProperty 'diagonaldoors.validateModels', 'true'
+            if (project.hasProperty('modelSmoke')) systemProperty 'diagonaldoors.exitAfterModelChecks', 'true'
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'diagonaldoors'
+        }
+        server { server(); programArgument '--nogui' }
+    }
+    mods { diagonaldoors { sourceSet(sourceSets.main) } }
+}
+repositories { mavenCentral() }
+dependencies {
+    if (project.hasProperty('compat')) runtimeOnly fileTree('run/compat-mods') { include '*.jar' }
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+tasks.named('test', Test) { useJUnitPlatform() }
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.named('jar', Jar) {
+    from('LICENSE')
+    // Development checks run from classes directories and are excluded from the installable mod.
+    exclude 'com/haley/diagonaldoors/DoorGameTests.class'
+    exclude 'com/haley/diagonaldoors/client/DevelopmentModelChecks.class'
+    exclude 'data/diagonaldoors/structure/empty.nbt'
+}

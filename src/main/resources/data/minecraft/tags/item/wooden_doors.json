@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "diagonaldoors:diagonal_oak_door",
+    "diagonaldoors:diagonal_spruce_door",
+    "diagonaldoors:diagonal_birch_door",
+    "diagonaldoors:diagonal_jungle_door",
+    "diagonaldoors:diagonal_acacia_door",
+    "diagonaldoors:diagonal_dark_oak_door",
+    "diagonaldoors:diagonal_mangrove_door",
+    "diagonaldoors:diagonal_cherry_door",
+    "diagonaldoors:diagonal_bamboo_door",
+    "diagonaldoors:diagonal_crimson_door",
+    "diagonaldoors:diagonal_warped_door"
+  ]
+}

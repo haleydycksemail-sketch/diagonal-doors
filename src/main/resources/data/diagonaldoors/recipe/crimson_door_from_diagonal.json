@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "diagonaldoors:diagonal_crimson_door"
+    }
+  ],
+  "result": {
+    "id": "minecraft:crimson_door",
+    "count": 1
+  }
+}

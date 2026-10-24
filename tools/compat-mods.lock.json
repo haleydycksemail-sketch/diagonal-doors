@@ -1,0 +1,30 @@
+[
+  {
+    "project": "diagonal-windows",
+    "version": "v21.1.1-1.21.1-NeoForge",
+    "filename": "DiagonalWindows-v21.1.1-1.21.1-NeoForge.jar",
+    "url": "https://cdn.modrinth.com/data/oOi0CKes/versions/IwUmOLxe/DiagonalWindows-v21.1.1-1.21.1-NeoForge.jar",
+    "sha512": "fd335b7789321a1d0de9691d855c2bcc51d669f4614bdd2cd6fe17f7881f9dd39e63cb28c39a1a1798e98a6876ad1658ef2e3805e884f13e4650810611227849"
+  },
+  {
+    "project": "diagonal-walls",
+    "version": "v21.1.2-1.21.1-NeoForge",
+    "filename": "DiagonalWalls-v21.1.2-1.21.1-NeoForge.jar",
+    "url": "https://cdn.modrinth.com/data/FQgc8dib/versions/2k3GCxEt/DiagonalWalls-v21.1.2-1.21.1-NeoForge.jar",
+    "sha512": "69495235948a9786b6c99eac06cf2a406f478b4425f08699b205da667a3a8a7f9cd3e7ac643199a01487d3a7319b275e014d2a81885008845d2ec798664620f0"
+  },
+  {
+    "project": "diagonal-fences",
+    "version": "v21.1.1-1.21.1-NeoForge",
+    "filename": "DiagonalFences-v21.1.1-1.21.1-NeoForge.jar",
+    "url": "https://cdn.modrinth.com/data/IKARgflD/versions/bgR1e0O5/DiagonalFences-v21.1.1-1.21.1-NeoForge.jar",
+    "sha512": "856e035193eb99264321e6d971881bad14baeb7196cb3ae75463457802dfb4d967eaec27a046e1290f074721fc1cd85d59adfd773a287b159a7baac1435c09d1"
+  },
+  {
+    "project": "puzzles-lib",
+    "version": "21.1.65",
+    "filename": "puzzleslib-v21.1.65-mc1.21.1+neoforge.jar",
+    "url": "https://cdn.modrinth.com/data/QAGBst4M/versions/kiX1lfse/puzzleslib-v21.1.65-mc1.21.1%2Bneoforge.jar",
+    "sha512": "9ed93c75df6f61e83945944a036304a974a3e09eab34acbe9edbb499a575396dbc789ddc2a81174168a77113b09eef2cdfcb493728f73c6081da3f27630bdea2"
+  }
+]

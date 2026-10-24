@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "diagonaldoors:diagonal_spruce_door"
+    }
+  ],
+  "result": {
+    "id": "minecraft:spruce_door",
+    "count": 1
+  }
+}
